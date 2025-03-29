@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
 #include <limits>
+#include <cstdlib>
+#include <windows.h>
+#include <conio.h>
 #include "../EmployeeLib/Employee.h"
 #include "../EmployeeLib/FileManager.h"
 #include "../EmployeeLib/LinkedList.h"
@@ -8,7 +11,7 @@
 using namespace std;
 
 // Function prototypes
-void DisplayMenu();
+void DisplayMenu(int selected);
 void AddEmployee(LinkedList<Employee>& employees);
 void DisplayEmployees(const LinkedList<Employee>& employees);
 void SearchEmployeeById(const LinkedList<Employee>& employees);
@@ -17,78 +20,140 @@ void DeleteEmployee(LinkedList<Employee>& employees);
 void UpdateEmployee(LinkedList<Employee>& employees);
 void SaveEmployees(const LinkedList<Employee>& employees);
 void LoadEmployees(LinkedList<Employee>& employees);
+void gotoxy1(int x, int y);
+void SetColorAndBackground(int ForgC, int BackC);
+
+// Menu options
+const char* menu[] = {
+    "Add new Employee",
+    "Display all Employees",
+    "Search Employee by ID",
+    "Search Employee by Name",
+    "Delete Employee by ID",
+    "Update Employee data by ID",
+    "Save Employees to file",
+    "Load Employees from file",
+    "Exit"
+};
+const int menuCount = sizeof(menu) / sizeof(menu[0]);
+
+void gotoxy1(int x, int y)
+{
+    COORD coord;
+    coord.X = x;
+    coord.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+void SetColorAndBackground(int ForgC, int BackC)
+{
+    WORD wColor = ((BackC & 0x0F) << 4) + (ForgC & 0x0F);
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wColor);
+}
 
 int main()
 {
     LinkedList<Employee> employees;
-    int choice;
+    int selected = 0;
+    bool isRunning = true;
 
-    do
-    {
-        DisplayMenu();
+    do {
+        system("cls");
+        gotoxy1(50, 3);
+        SetColorAndBackground(15, 0);
+        cout << "======== Employee Management System ========";
+        gotoxy1(50, 4);
+        cout << "Use arrow keys to navigate, Enter to select, Esc to exit";
 
-        // Input validation
-        while (!(cin >> choice))
-        {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Invalid input. Please enter a number: ";
+        // Display menu items
+        for (int i = 0; i < menuCount; i++) {
+            gotoxy1(50, 6 + i * 2);
+            if (i == selected) {
+                SetColorAndBackground(15, 1);  // White text on blue background for selected
+            }
+            else {
+                SetColorAndBackground(15, 0);  // White text on black background
+            }
+            cout << menu[i];
         }
 
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-        switch (choice)
-        {
-        case 1:
-            AddEmployee(employees);
-            break;
-        case 2:
-            DisplayEmployees(employees);
-            break;
-        case 3:
-            SearchEmployeeById(employees);
-            break;
-        case 4:
-            SearchEmployeeByName(employees);
-            break;
-        case 5:
-            DeleteEmployee(employees);
-            break;
-        case 6:
-            UpdateEmployee(employees);
-            break;
-        case 7:
-            SaveEmployees(employees);
-            break;
-        case 8:
-            LoadEmployees(employees);
-            break;
-        case 0:
-            cout << "Exiting program..." << endl;
-            break;
-        default:
-            cout << "Invalid choice. Please try again." << endl;
+        // Handle key input
+        int key = _getch();
+        if (key == 0 || key == 224) { // Special keys (arrows)
+            key = _getch();
         }
 
-        cout << endl;
-    } while (choice != 0);
+        switch (key) {
+        case 72: // Up arrow
+            --selected;
+            if (selected < 0) selected = menuCount - 1;
+            break;
+        case 80: // Down arrow
+            ++selected;
+            if (selected >= menuCount) selected = 0;
+            break;
+        case 13: // Enter key
+            SetColorAndBackground(15, 0);
+            system("cls");
+
+            switch (selected) {
+            case 0:
+                AddEmployee(employees);
+                break;
+            case 1:
+                DisplayEmployees(employees);
+                break;
+            case 2:
+                SearchEmployeeById(employees);
+                break;
+            case 3:
+                SearchEmployeeByName(employees);
+                break;
+            case 4:
+                DeleteEmployee(employees);
+                break;
+            case 5:
+                UpdateEmployee(employees);
+                break;
+            case 6:
+                SaveEmployees(employees);
+                break;
+            case 7:
+                LoadEmployees(employees);
+                break;
+            case 8:
+                isRunning = false;
+                break;
+            }
+
+            if (selected != 8) {
+                cout << "\nPress any key to continue...";
+                _getch();
+            }
+            break;
+        case 27: // Escape key
+            isRunning = false;
+            break;
+        }
+
+    } while (isRunning);
+
+    system("cls");
+    gotoxy1(50, 10);
+    cout << "Exiting program..." << endl;
 
     return 0;
 }
 
-void DisplayMenu()
+void DisplayMenu(int selected)
 {
+    system("cls");
     cout << "======== Employee Management System ========" << endl;
-    cout << "1. Add new Employee" << endl;
-    cout << "2. Display all Employees" << endl;
-    cout << "3. Search Employee by ID" << endl;
-    cout << "4. Search Employee by Name" << endl;
-    cout << "5. Delete Employee by ID" << endl;
-    cout << "6. Update Employee data by ID" << endl;
-    cout << "7. Save Employees to file" << endl;
-    cout << "8. Load Employees from file" << endl;
-    cout << "0. Exit" << endl;
-    cout << "Enter your choice: ";
+    cout << "Use 'w' and 's' keys to navigate, Enter to select, Esc to exit" << endl << endl;
+
+    for (int i = 0; i < menuCount; i++) {
+        cout << (i == selected ? "> " : "  ") << menu[i] << endl;
+    }
 }
 
 void AddEmployee(LinkedList<Employee>& employees)
@@ -99,14 +164,14 @@ void AddEmployee(LinkedList<Employee>& employees)
 
     cout << "Enter Employee ID: ";
     cin >> id;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
     cout << "Enter Employee Name: ";
     getline(cin, name);
 
     cout << "Enter Employee Salary: ";
     cin >> salary;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
     Employee emp(id, name, salary);
     employees.Add(emp);
@@ -131,7 +196,7 @@ void SearchEmployeeById(const LinkedList<Employee>& employees)
     int searchId;
     cout << "Enter Employee ID to search: ";
     cin >> searchId;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
     Employee searchEmp;
     searchEmp.setId(searchId);
@@ -176,7 +241,7 @@ void DeleteEmployee(LinkedList<Employee>& employees)
     int deleteId;
     cout << "Enter Employee ID to delete: ";
     cin >> deleteId;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
     Employee deleteEmp;
     deleteEmp.setId(deleteId);
@@ -196,7 +261,7 @@ void UpdateEmployee(LinkedList<Employee>& employees)
     int updateId;
     cout << "Enter Employee ID to update: ";
     cin >> updateId;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
     Employee searchEmp;
     searchEmp.setId(updateId);
@@ -223,7 +288,7 @@ void UpdateEmployee(LinkedList<Employee>& employees)
         cout << "Enter new Salary (enter 0 to keep current): ";
         double newSalary;
         cin >> newSalary;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
         if (newSalary != 0)
         {
             emp.setSalary(newSalary);
@@ -244,7 +309,7 @@ void SaveEmployees(const LinkedList<Employee>& employees)
 
     cout << "Save as:\n1. Binary file\n2. Text file\nEnter choice: ";
     cin >> fileType;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
     cout << "Enter filename: ";
     getline(cin, filename);
@@ -290,7 +355,7 @@ void LoadEmployees(LinkedList<Employee>& employees)
 
     cout << "Load from:\n1. Binary file\n2. Text file\nEnter choice: ";
     cin >> fileType;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
     cout << "Enter filename: ";
     getline(cin, filename);
