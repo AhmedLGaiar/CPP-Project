@@ -37,20 +37,6 @@ const char* menu[] = {
 };
 const int menuCount = sizeof(menu) / sizeof(menu[0]);
 
-void gotoxy1(int x, int y)
-{
-    COORD coord;
-    coord.X = x;
-    coord.Y = y;
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-}
-
-void SetColorAndBackground(int ForgC, int BackC)
-{
-    WORD wColor = ((BackC & 0x0F) << 4) + (ForgC & 0x0F);
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wColor);
-}
-
 int main()
 {
     LinkedList<Employee> employees;
@@ -392,4 +378,18 @@ void LoadEmployees(LinkedList<Employee>& employees)
     {
         cout << "Failed to load employees from file." << endl;
     }
+}
+
+void gotoxy1(int x, int y)
+{
+    COORD coord;
+    coord.X = x;
+    coord.Y = y;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+void SetColorAndBackground(int ForgC, int BackC)
+{
+    WORD wColor = ((BackC & 0x0F) << 4) + (ForgC & 0x0F);
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wColor);
 }
