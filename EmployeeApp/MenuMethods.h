@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string>
 #include <limits>
@@ -10,122 +11,24 @@
 
 using namespace std;
 
-// Function prototypes
-void DisplayMenu(int selected);
-void AddEmployee(LinkedList<Employee>& employees);
-void DisplayEmployees(const LinkedList<Employee>& employees);
-void SearchEmployeeById(const LinkedList<Employee>& employees);
-void SearchEmployeeByName(const LinkedList<Employee>& employees);
-void DeleteEmployee(LinkedList<Employee>& employees);
-void UpdateEmployee(LinkedList<Employee>& employees);
-void SaveEmployees(const LinkedList<Employee>& employees);
-void LoadEmployees(LinkedList<Employee>& employees);
-void SortEmployees(LinkedList<Employee>& employees);
-void gotoxy1(int x, int y);
-void SetColorAndBackground(int ForgC, int BackC);
-
-// Menu options
-const char* menu[] = {
-    "Add new Employee",
-    "Display all Employees",
-    "Search Employee by ID",
-    "Search Employee by Name",
-    "Delete Employee by ID",
-    "Update Employee data by ID",
-    "Sort Employees",
-    "Save Employees to file",
-    "Load Employees from file",
-    "Exit"
+class MenuMethods
+{
+public:
+	static void DisplayMenu(int selected);
+	static void AddEmployee(LinkedList<Employee>& employees);
+	static void DisplayEmployees(const LinkedList<Employee>& employees);
+	static void SearchEmployeeById(const LinkedList<Employee>& employees);
+	static void SearchEmployeeByName(const LinkedList<Employee>& employees);
+	static void DeleteEmployee(LinkedList<Employee>& employees);
+	static void UpdateEmployee(LinkedList<Employee>& employees);
+	static void SaveEmployees(const LinkedList<Employee>& employees);
+	static void LoadEmployees(LinkedList<Employee>& employees);
+	static void SortEmployees(LinkedList<Employee>& employees);
+    static void gotoxy1(int x, int y);
+    static void SetColorAndBackground(int ForgC, int BackC);
+	static const char* menu[];
+	static const int menuCount;
 };
-const int menuCount = sizeof(menu) / sizeof(menu[0]);
-
-int main()
-{
-    LinkedList<Employee> employees;
-    int selected = 0;
-    bool isRunning = true;
-
-    do {
-        system("cls");
-        gotoxy1(50, 3);
-        SetColorAndBackground(15, 0);
-        cout << "======== Employee Management System ========";
-        gotoxy1(50, 4);
-        cout << "Use arrow keys to navigate, Enter to select, Esc to exit";
-
-        // Display menu items
-        for (int i = 0; i < menuCount; i++) {
-            gotoxy1(50, 6 + i * 2);
-            if (i == selected) {
-                SetColorAndBackground(15, 1);  // White text on blue background for selected
-            }
-            else {
-                SetColorAndBackground(15, 0);  // White text on black background
-            }
-            cout << menu[i];
-        }
-
-        // Handle key input
-        int key = _getch();
-        if (key == 0 || key == 224) { // Special keys (arrows)
-            key = _getch();
-        }
-
-        switch (key) {
-        case 72: // Up arrow
-            --selected;
-            if (selected < 0) selected = menuCount - 1;
-            break;
-        case 80: // Down arrow
-            ++selected;
-            if (selected >= menuCount) selected = 0;
-            break;
-        case 13: // Enter key
-            SetColorAndBackground(15, 0);
-            system("cls");
-
-            switch (selected) {
-            case 0: AddEmployee(employees); break;
-            case 1: DisplayEmployees(employees); break;
-            case 2: SearchEmployeeById(employees); break;
-            case 3: SearchEmployeeByName(employees); break;
-            case 4: DeleteEmployee(employees); break;
-            case 5: UpdateEmployee(employees); break;
-            case 6: SortEmployees(employees); break; 
-            case 7: SaveEmployees(employees); break;
-            case 8: LoadEmployees(employees); break;
-            case 9: isRunning = false; break;
-            }
-
-            if (selected != 8) {
-                cout << "\nPress any key to continue...";
-                _getch();
-            }
-            break;
-        case 27: // Escape key
-            isRunning = false;
-            break;
-        }
-
-    } while (isRunning);
-
-    system("cls");
-    gotoxy1(50, 10);
-    cout << "Exiting program..." << endl;
-
-    return 0;
-}
-
-void DisplayMenu(int selected)
-{
-    system("cls");
-    cout << "======== Employee Management System ========" << endl;
-    cout << "Use 'w' and 's' keys to navigate, Enter to select, Esc to exit" << endl << endl;
-
-    for (int i = 0; i < menuCount; i++) {
-        cout << (i == selected ? "> " : "  ") << menu[i] << endl;
-    }
-}
 
 void AddEmployee(LinkedList<Employee>& employees)
 {
@@ -453,7 +356,7 @@ void SortEmployees(LinkedList<Employee>& employees) {
     } while (inSortMenu);
 }
 
-void gotoxy1(int x, int y)
+void MenuMethods::gotoxy1(int x, int y)
 {
     COORD coord;
     coord.X = x;
@@ -461,8 +364,9 @@ void gotoxy1(int x, int y)
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-void SetColorAndBackground(int ForgC, int BackC)
+void MenuMethods::SetColorAndBackground(int ForgC, int BackC)
 {
     WORD wColor = ((BackC & 0x0F) << 4) + (ForgC & 0x0F);
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), wColor);
 }
+

@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cstring> // For memcpy
 #include <functional> // For comparison functions
+#include <vector> // For sorting
+#include <algorithm> // For sorting
 
 template <typename T>
 class LinkedList
@@ -106,6 +108,28 @@ public:
             current = current->Next;
         }
         return nullptr;
+    }
+
+    void SortBy(std::function<bool(const T&, const T&)> comparator) {
+        if (Count <= 1) return;
+
+        // Copy elements to vector
+        std::vector<T> elements;
+        Node* current = Head;
+        while (current != nullptr) {
+            elements.push_back(*(current->data));
+            current = current->Next;
+        }
+
+        // Sort the vector
+        std::sort(elements.begin(), elements.end(), comparator);
+
+        // Copy back to linked list
+        current = Head;
+        for (const T& item : elements) {
+            *(current->data) = item;
+            current = current->Next;
+        }
     }
 
     bool Delete(const T& data)
